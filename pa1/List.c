@@ -106,11 +106,55 @@ ListElement get(List L) {
 }
 
 bool equals(List A, List B) {
+    moveFront(A);
+    moveFront(B);
 
+    if (A == NULL || B == NULL) {
+        printf("List Error: equals: NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    if (length(A) != length(B)) {
+        return false;
+    }
+    while (position(A) < length(A)) {
+
+    }
 }
 
 // Manipulation procedures ----------------------------------------------------
 
+
+void clear(List L); 
+
+void set(List L, ListElement x);
+
+void moveFront(List L) {
+    if (L == NULL || L->length <= 0) {
+        printf("List Error: moveFront: length is zero or NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    L->cursor = L->front;
+}
+
+void moveBack(List L) {
+    if (L == NULL || L->length <= 0) {
+        printf("List Error: moveBack: length is zero or NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    L->cursor = L->back;
+}
+
+// void movePrev(List L) {
+//     if (L == NULL || L->length <= 0) {
+//         printf("List Error: movePrev: length is zero or NULL List Reference");
+//         exit(EXIT_FAILURE);
+//     }
+//     if (L->cursor != L->front && L->cursor != NULL) {
+//         L->cursor = L->cursor->previous;
+//     } else if (L->cursor == L->front && L->cursor != NULL) {
+//         L->cursor = NULL;
+//     }
+// }
 
 void deleteFront(List L) {
     if (L == NULL || L->length <= 0) {

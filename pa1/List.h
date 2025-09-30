@@ -79,7 +79,6 @@ void moveBack(List L);
 // L, if cursor is defined and at front, cursor becomes undefined, if cursor is 
 // undefined does nothing. 
 void movePrev(List L); 
-3 
 
 
 // moveNext() 
