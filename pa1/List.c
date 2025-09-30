@@ -1,6 +1,7 @@
 #include "List.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // private Node type
 typedef struct Node{
@@ -8,7 +9,6 @@ typedef struct Node{
     struct Node* next;
     struct Node* previous;
 } Node;
-
 
 // private ListObj type
 typedef struct ListObj{
@@ -19,11 +19,14 @@ typedef struct ListObj{
     int position;
 } ListObj;
 
-// newList()
-// Returns reference to a new empty List object.
-List NewList() {
+List NewList() {                                        // Does it need conditional
     List L;
     L = malloc(sizeof(ListObj));
+    // Check precon: malloc must not return NULL
+    if (L == NULL) {
+        printf("List Error: newList: failed to allocate memory");
+        exit(EXIT_FAILURE);
+    }
     L->front = NULL;
     L->back = NULL;
     L->cursor = NULL;
@@ -32,15 +35,119 @@ List NewList() {
     return(L);
 };
 
-// freeList() 
-// Frees heap memory associated with *pL, sets *pL to NULL.
 void freeList(List* pL) {
-    Node* current = (*pL)->back;
-    while (current != NULL) {
-        Node* temp = current->previous;
-        free(current);
-        current = temp;
+    if (*pL == NULL) {
+        printf("List Error: freeList: failed to de-allocate memory");
+        exit(EXIT_FAILURE);
+    }
+    while (length(*pL) > 0) {
+        deleteFront(*pL);
     }
     free(*pL);
     *pL = NULL;
+}
+
+// Access functions ----------------------------------------------------------- 
+ 
+int length(List L) {
+    if (L == NULL) {
+        printf("List Error: length: NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    return L->length;
 };
+
+int position(List L) {
+    if (L == NULL) {
+        printf("List Error: position: NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    return L->position; 
+}
+
+ListElement front(List L) {
+    if (L == NULL) {
+        printf("List Error: front: NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) == 0) {
+        printf("List Error: front: length is zero");
+        exit(EXIT_FAILURE);
+    }
+    return L->front->data;
+}
+
+ListElement back(List L) {
+    if (L == NULL) {
+        printf("List Error: back: NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) <= 0) {
+        printf("List Error: back: length is zero");
+        exit(EXIT_FAILURE);
+    }
+    return L->back->data;
+} 
+ 
+ListElement get(List L) {
+    if (L == NULL) {
+        printf("List Error: get: NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) <= 0) {
+        printf("List Error: get: length is zero");
+        exit(EXIT_FAILURE);
+    }
+    if (position(L) < 0) {
+        printf("List Error: get: position is negative");
+        exit(EXIT_FAILURE);
+    }
+    return L->cursor->data;
+}
+
+bool equals(List A, List B) {
+
+}
+
+// Manipulation procedures ----------------------------------------------------
+
+
+void deleteFront(List L) {
+    if (L == NULL || L->length <= 0) {
+        printf("List Error: deleteFront: length is zero or NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    
+    Node* current = L->front;
+    // If the list is only 1 long, special behavior b/c the list is now empty
+    if (L->length == 1) {
+        L->front = NULL;
+        L->back = NULL;
+    } else {
+        L->front = current->next;
+        L->front->previous = NULL;
+    }
+
+    free(current);
+    L->length -= 1;
+}
+
+void deleteBack(List L) {
+    if (L == NULL || L->length <= 0) {
+        printf("List Error: deleteBack: length is zero or NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    
+    Node* current = L->back;
+
+    if (L->length == 1) {
+        L->front = NULL;
+        L->back = NULL;
+    } else {
+        L->back = current->previous;
+        L->back->next = NULL;
+    }
+
+    free(current);
+    L->length -= 1;
+} 
