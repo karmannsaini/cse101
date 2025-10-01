@@ -1,3 +1,8 @@
+// do i move the cursor and position in unison, line 141 line 150
+// precon like L==NULL ok?
+
+
+
 #include "List.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,6 +32,7 @@ List NewList() {                                        // Does it need conditio
         printf("List Error: newList: failed to allocate memory");
         exit(EXIT_FAILURE);
     }
+    assert(L!=NULL);
     L->front = NULL;
     L->back = NULL;
     L->cursor = NULL;
@@ -36,11 +42,11 @@ List NewList() {                                        // Does it need conditio
 };
 
 void freeList(List* pL) {
-    if (*pL == NULL) {
+    if (*pL == NULL) {              // tantalo uses if (*pL != NULL) is this better?, if (pL != NULL && *pL != NULL)
         printf("List Error: freeList: failed to de-allocate memory");
         exit(EXIT_FAILURE);
     }
-    while (length(*pL) > 0) {
+    while (length(*pL) > 0) { //while (!isEmpty(*pL))
         deleteFront(*pL);
     }
     free(*pL);
@@ -67,11 +73,11 @@ int position(List L) {
 
 ListElement front(List L) {
     if (L == NULL) {
-        printf("List Error: front: NULL List Reference");
+        printf("List Error: front(): NULL List Reference\n");
         exit(EXIT_FAILURE);
     }
-    if (length(L) == 0) {
-        printf("List Error: front: length is zero");
+    if (isEmpty(L)) {
+        printf("List Error: front(): empty List\n");
         exit(EXIT_FAILURE);
     }
     return L->front->data;
@@ -79,11 +85,11 @@ ListElement front(List L) {
 
 ListElement back(List L) {
     if (L == NULL) {
-        printf("List Error: back: NULL List Reference");
+        printf("List Error: back()): NULL List Reference\n");
         exit(EXIT_FAILURE);
     }
-    if (length(L) <= 0) {
-        printf("List Error: back: length is zero");
+    if (isEmpty(L)) {
+        printf("List Error: back(): empty List\n");
         exit(EXIT_FAILURE);
     }
     return L->back->data;
@@ -91,15 +97,15 @@ ListElement back(List L) {
  
 ListElement get(List L) {
     if (L == NULL) {
-        printf("List Error: get: NULL List Reference");
+        printf("List Error: get(): NULL List Reference");
         exit(EXIT_FAILURE);
     }
     if (length(L) <= 0) {
-        printf("List Error: get: length is zero");
+        printf("List Error: get(): length is zero");
         exit(EXIT_FAILURE);
     }
     if (position(L) < 0) {
-        printf("List Error: get: position is negative");
+        printf("List Error: get(): position is negative");
         exit(EXIT_FAILURE);
     }
     return L->cursor->data;
@@ -110,7 +116,7 @@ bool equals(List A, List B) {
     moveFront(B);
 
     if (A == NULL || B == NULL) {
-        printf("List Error: equals: NULL List Reference");
+        printf("List Error: equals(): NULL List Reference");
         exit(EXIT_FAILURE);
     }
     if (length(A) != length(B)) {
@@ -130,7 +136,7 @@ void set(List L, ListElement x);
 
 void moveFront(List L) {
     if (L == NULL || L->length <= 0) {
-        printf("List Error: moveFront: length is zero or NULL List Reference");
+        printf("List Error: moveFront(): length is zero or NULL List Reference");
         exit(EXIT_FAILURE);
     }
     L->cursor = L->front;
@@ -138,7 +144,7 @@ void moveFront(List L) {
 
 void moveBack(List L) {
     if (L == NULL || L->length <= 0) {
-        printf("List Error: moveBack: length is zero or NULL List Reference");
+        printf("List Error: moveBack(): length is zero or NULL List Reference");
         exit(EXIT_FAILURE);
     }
     L->cursor = L->back;
@@ -158,7 +164,7 @@ void moveBack(List L) {
 
 void deleteFront(List L) {
     if (L == NULL || L->length <= 0) {
-        printf("List Error: deleteFront: length is zero or NULL List Reference");
+        printf("List Error: deleteFront(): length is zero or NULL List Reference");
         exit(EXIT_FAILURE);
     }
     
@@ -178,7 +184,7 @@ void deleteFront(List L) {
 
 void deleteBack(List L) {
     if (L == NULL || L->length <= 0) {
-        printf("List Error: deleteBack: length is zero or NULL List Reference");
+        printf("List Error: deleteBack(): length is zero or NULL List Reference");
         exit(EXIT_FAILURE);
     }
     
