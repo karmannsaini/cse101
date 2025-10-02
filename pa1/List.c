@@ -24,6 +24,9 @@ typedef struct ListObj{
     int position;
 } ListObj;
 
+
+// Constructors-Destructors ---------------------------------------------------
+
 List NewList() {                                        // Does it need conditional
     List L;
     L = malloc(sizeof(ListObj));
@@ -100,8 +103,8 @@ ListElement get(List L) {
         printf("List Error: get(): NULL List Reference");
         exit(EXIT_FAILURE);
     }
-    if (length(L) <= 0) {
-        printf("List Error: get(): length is zero");
+    if (isEmpty(L)) {
+        printf("List Error: get(): empty List\n");
         exit(EXIT_FAILURE);
     }
     if (position(L) < 0) {
@@ -112,42 +115,87 @@ ListElement get(List L) {
 }
 
 bool equals(List A, List B) {
-    moveFront(A);
-    moveFront(B);
-
-    if (A == NULL || B == NULL) {
-        printf("List Error: equals(): NULL List Reference");
+    if (A == NULL) {
+        printf("List Error: equals(): NULL List A Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (B == NULL) {
+        printf("List Error: equals(): NULL List B Reference\n");
         exit(EXIT_FAILURE);
     }
     if (length(A) != length(B)) {
         return false;
     }
-    while (position(A) < length(A)) {
 
+    Node* currentA = A->front;
+    Node* currentB = B->front;
+
+    while (currentA != NULL && currentB != NULL) {
+        if(currentA->data != currentB->data) {
+            return false;
+        }
+        currentA = currentA->next;
+        currentB = currentB->next;
     }
+
+    return true;
 }
 
 // Manipulation procedures ----------------------------------------------------
 
+void clear(List L) {
+    if (L == NULL) {
+        printf("List Error: clear(): NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    while (L->front != NULL) {
+        deletFront(L);
+    }
+    L->length = 0;
+    L-> position = -1;
+    L->cursor = NULL;
+}
 
-void clear(List L); 
-
-void set(List L, ListElement x);
+void set(List L, ListElement x) {
+    if (L == NULL) {
+        printf("List Error: set(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) <= 0) {
+        printf("List Error: set(): length is zero\n");
+        exit(EXIT_FAILURE);
+    }
+    if (position(L) < 0) {
+        printf("List Error: set(): position is not valid\n");
+        exit(EXIT_FAILURE);
+    }
+    L->cursor->data = x;
+}
 
 void moveFront(List L) {
-    if (L == NULL || L->length <= 0) {
-        printf("List Error: moveFront(): length is zero or NULL List Reference");
+    if (L == NULL) {
+        printf("List Error: moveFront(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (L->length <= 0) {
+        printf("List Error: moveFront(): length is zero\n");
         exit(EXIT_FAILURE);
     }
     L->cursor = L->front;
+    L->position = 0;
 }
 
 void moveBack(List L) {
-    if (L == NULL || L->length <= 0) {
-        printf("List Error: moveBack(): length is zero or NULL List Reference");
+    if (L == NULL) {
+        printf("List Error: moveBack(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (L->length <= 0) {
+        printf("List Error: moveBack(): length is zero\n");
         exit(EXIT_FAILURE);
     }
     L->cursor = L->back;
+    L->position = length(L) - 1;
 }
 
 // void movePrev(List L) {
@@ -162,9 +210,23 @@ void moveBack(List L) {
 //     }
 // }
 
+void moveNext(List L); 
+
+void prepend(List L, ListElement data);
+
+void append(List L, ListElement data);
+
+void insertBefore(List L, ListElement data);
+
+void insertAfter(List L, ListElement data);
+
 void deleteFront(List L) {
-    if (L == NULL || L->length <= 0) {
-        printf("List Error: deleteFront(): length is zero or NULL List Reference");
+    if (L == NULL) {
+        printf("List Error: deleteFront(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (L->length <= 0) {
+        printf("List Error: deleteFront(): length is zero\n");
         exit(EXIT_FAILURE);
     }
     
@@ -183,8 +245,12 @@ void deleteFront(List L) {
 }
 
 void deleteBack(List L) {
-    if (L == NULL || L->length <= 0) {
-        printf("List Error: deleteBack(): length is zero or NULL List Reference");
+    if (L == NULL) {
+        printf("List Error: deleteBack(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (L->length <= 0) {
+        printf("List Error: deleteBack(): length is zero\n");
         exit(EXIT_FAILURE);
     }
     
@@ -201,3 +267,15 @@ void deleteBack(List L) {
     free(current);
     L->length -= 1;
 } 
+
+void delete(List L);
+
+// Other operations -----------------------------------------------------------
+
+void printList(FILE* out, List L);
+
+List copyList(List L);
+
+List join(List A, List B);
+
+List split(List L);
