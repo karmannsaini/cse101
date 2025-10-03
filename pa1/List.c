@@ -1,8 +1,3 @@
-// do i move the cursor and position in unison, line 141 line 150
-// precon like L==NULL ok?
-
-
-
 #include "List.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -198,19 +193,29 @@ void moveBack(List L) {
     L->position = length(L) - 1;
 }
 
-// void movePrev(List L) {
-//     if (L == NULL || L->length <= 0) {
-//         printf("List Error: movePrev: length is zero or NULL List Reference");
-//         exit(EXIT_FAILURE);
-//     }
-//     if (L->cursor != L->front && L->cursor != NULL) {
-//         L->cursor = L->cursor->previous;
-//     } else if (L->cursor == L->front && L->cursor != NULL) {
-//         L->cursor = NULL;
-//     }
-// }
+void movePrev(List L) {
+    if (L == NULL) {
+        printf("List Error: movePrev(): NULL List Reference");
+        exit(EXIT_FAILURE);
+    }
+    if (L->cursor != NULL && L->cursor != L->front) {
+        L->cursor = L->cursor->previous;
+    } else if (L->cursor == NULL && L->cursor != L->front) {
+        L->cursor = NULL;
+    }
+}
 
-void moveNext(List L); 
+void moveNext(List L) {
+    if (L == NULL) {
+        printf("List Error: moveNext(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (L->cursor != NULL && L->cursor != L->back) {
+        L->cursor = L->cursor->next
+    } else if (L->cursor == NULL  && L->cursor != L->back) {
+        L->cursor = NULL
+    }
+}
 
 void prepend(List L, ListElement data);
 
@@ -279,3 +284,5 @@ List copyList(List L);
 List join(List A, List B);
 
 List split(List L);
+
+// blah blah blah
