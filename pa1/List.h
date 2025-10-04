@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <assert.h>
+
 typedef struct ListObj* List;
 
 typedef int ListElement;
@@ -136,9 +141,9 @@ void printList(FILE* out, List L);
 // Returns a new List representing the same integer sequence as L.  The cursor 
 // in the new list is undefined, regardless of the state of the cursor in L. The 
 // List L is unchanged. 
-
-
 List copyList(List L); 
+
+
 // join() 
 // Returns the concatenation of A followed by B. The cursor in the new List is  
 // undefined, regardless of the states of the cursors A in and B. The states of  
@@ -152,3 +157,7 @@ List join(List A, List B);
 // all the removed elements. The cursor in the returned list is undefined.  
 // Pre: length(L)>0, position(L)>=0 
 List split(List L);
+
+// isempty()
+// Returns true if L is empty (length is 0), false otherwise.
+bool isEmpty(List L);

@@ -22,7 +22,7 @@ typedef struct ListObj{
 
 // Constructors-Destructors ---------------------------------------------------
 
-List NewList() {                                        // Does it need conditional
+List newList() {
     List L;
     L = malloc(sizeof(ListObj));
     // Check precon: malloc must not return NULL
@@ -144,7 +144,7 @@ void clear(List L) {
         exit(EXIT_FAILURE);
     }
     while (L->front != NULL) {
-        deletFront(L);
+        deleteFront(L);
     }
     L->length = 0;
     L-> position = -1;
@@ -434,10 +434,11 @@ void delete(List L) {
         L->cursor->previous->next = L->cursor->next;
         L->cursor->next->previous = L->cursor->previous;
         free(current);
-        L->cursor = NULL;
+        L->length -= 1;
     }
 
-
+    L->cursor = NULL;
+    L->position = -1;
 }
 
 // Other operations -----------------------------------------------------------
@@ -534,4 +535,12 @@ List split(List L) {
     L->position = 0;
 
     return S;
+}
+
+bool isEmpty(List L) {
+    if (L == NULL) {
+        printf("List Error: isEmpty(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    return (L->length == 0);
 }
