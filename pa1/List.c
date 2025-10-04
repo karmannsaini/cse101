@@ -200,8 +200,10 @@ void movePrev(List L) {
     }
     if (L->cursor != NULL && L->cursor != L->front) {
         L->cursor = L->cursor->previous;
-    } else if (L->cursor == NULL && L->cursor != L->front) {
+        L->position -= 1;
+    } else if (L->cursor != NULL && L->cursor == L->front) {
         L->cursor = NULL;
+        L->position = -1;
     }
 }
 
@@ -211,19 +213,146 @@ void moveNext(List L) {
         exit(EXIT_FAILURE);
     }
     if (L->cursor != NULL && L->cursor != L->back) {
-        L->cursor = L->cursor->next
-    } else if (L->cursor == NULL  && L->cursor != L->back) {
-        L->cursor = NULL
+        L->cursor = L->cursor->next;
+        L->position += 1;
+    } else if (L->cursor != NULL  && L->cursor == L->back) {
+        L->cursor = NULL;
+        L->position = -1;
     }
 }
 
-void prepend(List L, ListElement data);
+void prepend(List L, ListElement data) {
+    if (L == NULL) {
+        printf("List Error: prepend(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
 
-void append(List L, ListElement data);
+    Node* newNode = malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("List Error: prepend(): failed to allocate memory for new node\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->previous = NULL;
 
-void insertBefore(List L, ListElement data);
 
-void insertAfter(List L, ListElement data);
+    if (isEmpty(L)) {
+        L->front = newNode;
+        L->back = newNode;
+        L->cursor = NULL;
+        L->position = -1;
+
+    } else {
+        L->front->previous = newNode;
+        newNode->next = L->front;
+        L->front = newNode;
+        
+        if (L->position != -1) {
+            L->position += 1;
+        }
+    }
+    L->length += 1;
+}
+
+void append(List L, ListElement data) {
+    if (L == NULL) {
+        printf("List Error: append(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Node* newNode = malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("List Error: append(): failed to allocate memory for new node\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->previous = NULL;
+
+
+    if (isEmpty(L)) {
+        L->front = newNode;
+        L->back = newNode;
+        L->cursor = NULL;
+        L->position = -1;
+    } else {
+        L->back->next = newNode;
+        newNode->previous = L->back;
+        L->back = newNode;
+    }
+    L->length += 1;
+}
+
+void insertBefore(List L, ListElement data) {
+    if (L == NULL) {
+        printf("List Error: insertBefore(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) <= 0) {
+        printf("List Error: insertBefore(): length is zero\n");
+        exit(EXIT_FAILURE);
+    }
+    if (position(L) < 0) {
+        printf("List Error: insertBefore(): position is not valid\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Node* newNode = malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("List Error: insertBefore(): failed to allocate memory for new node\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = data;
+    newNode->next = L->cursor;
+    
+    if (L->cursor->previous != NULL) {
+        newNode->previous = L->cursor->previous;
+        L->cursor->previous->next = newNode;
+        L->cursor->previous = newNode;
+    } else {
+        L->cursor->previous = newNode;
+        newNode->previous = NULL;
+        L->front = newNode;
+    }
+    L->position +=1;
+    L->length += 1;
+}
+
+void insertAfter(List L, ListElement data) {
+    if (L == NULL) {
+        printf("List Error: insertAfter(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) <= 0) {
+        printf("List Error: insertAfter(): length is zero\n");
+        exit(EXIT_FAILURE);
+    }
+    if (position(L) < 0) {
+        printf("List Error: insertAfter(): position is not valid\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Node* newNode = malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("List Error: insertAfter(): failed to allocate memory for new node\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = data;
+    newNode->previous = L->cursor;
+    
+    //if the cursor was not at the back
+    if (L->cursor->next != NULL) {
+        newNode->next = L->cursor->next;
+        L->cursor->next->previous = newNode;
+        L->cursor->next = newNode;
+    } else {
+        L->cursor->next = newNode;
+        newNode->next = NULL;
+        L->back = newNode;
+    }
+    L->length += 1;
+}
 
 void deleteFront(List L) {
     if (L == NULL) {
@@ -236,6 +365,11 @@ void deleteFront(List L) {
     }
     
     Node* current = L->front;
+    
+    if (L->cursor == L->front) {
+        L->cursor = NULL;
+        L->position = -1;
+    }
     // If the list is only 1 long, special behavior b/c the list is now empty
     if (L->length == 1) {
         L->front = NULL;
@@ -260,7 +394,10 @@ void deleteBack(List L) {
     }
     
     Node* current = L->back;
-
+    if (L->cursor == L->back) {
+        L->cursor = NULL;
+        L->position = -1;
+    }
     if (L->length == 1) {
         L->front = NULL;
         L->back = NULL;
@@ -273,16 +410,128 @@ void deleteBack(List L) {
     L->length -= 1;
 } 
 
-void delete(List L);
+void delete(List L) {
+    if (L == NULL) {
+        printf("List Error: delete(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) <= 0) {
+        printf("List Error: delete(): length is zero\n");
+        exit(EXIT_FAILURE);
+    }
+    if (position(L) < 0) {
+        printf("List Error: delete(): position is not valid\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    Node* current = L->cursor; //deals w dangling pointer
+
+    if (L->cursor == L->front){
+        deleteFront(L);
+    } else if (L->cursor == L->back){
+        deleteBack(L);
+    } else {        // cursor is in middle of list
+        L->cursor->previous->next = L->cursor->next;
+        L->cursor->next->previous = L->cursor->previous;
+        free(current);
+        L->cursor = NULL;
+    }
+
+
+}
 
 // Other operations -----------------------------------------------------------
 
-void printList(FILE* out, List L);
+void printList(FILE* out, List L) {
+    if (L == NULL) {
+        printf("List Error: printList(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (!isEmpty(L)) {
+        Node* current = L->front;
+        while (current != NULL) {
+            fprintf(out,"%d ", current->data);
+            current = current->next;
+        }
+    }
+}
 
-List copyList(List L);
+List copyList(List L){
+    if (L == NULL) {
+        printf("List Error: copyList(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    List N = newList();
+    Node* current = L->front;
 
-List join(List A, List B);
+    while (current != NULL) {
+        append(N, current->data);
+        current = current->next;
+    }
 
-List split(List L);
+    return N;
+}
 
-// blah blah blah
+List join(List A, List B) {
+    if (A == NULL) {
+        printf("List Error: join(): NULL List A Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (B == NULL) {
+        printf("List Error: join(): NULL List B Reference\n");
+        exit(EXIT_FAILURE);
+    }
+
+    List C = copyList(A);
+
+    Node* current = B->front;
+    while (current != NULL) {
+        append(C, current->data);
+        current = current->next;
+    }
+    
+    return C;
+}
+
+List split(List L) {
+    if (L == NULL) {
+        printf("List Error: split(): NULL List Reference\n");
+        exit(EXIT_FAILURE);
+    }
+    if (length(L) <= 0) {
+        printf("List Error: split(): length is zero\n");
+        exit(EXIT_FAILURE);
+    }
+    if (position(L) < 0) {
+        printf("List Error: split(): position is not valid\n");
+        exit(EXIT_FAILURE);
+    }
+
+    List S = newList();
+    Node* current = L->front;
+    Node* stop = L->cursor;
+    
+    while (L->front != L->cursor) {
+        Node* temp = L->front;
+        L->front = L->front->next;
+        if (L->front != NULL) {
+            L->front->previous = NULL;
+        }
+
+        temp->next = NULL;
+        temp->previous = S->back;
+        if (S->back != NULL) {
+            S->back->next = temp;
+        }
+        S->back = temp;
+        if (S->front == NULL) {
+            S->front = temp;
+        }
+        L->length--;
+        S->length++;
+    }
+
+    L->position = 0;
+
+    return S;
+}
