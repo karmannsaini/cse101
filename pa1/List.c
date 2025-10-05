@@ -40,15 +40,15 @@ List newList() {
 };
 
 void freeList(List* pL) {
-    if (*pL == NULL) {              // tantalo uses if (*pL != NULL) is this better?, if (pL != NULL && *pL != NULL)
-        printf("List Error: freeList: failed to de-allocate memory");
-        exit(EXIT_FAILURE);
+    //we need to check both pL and *pL and that is why
+    //a single if is being used
+    if (pL != NULL && *pL != NULL) {
+        while ((*pL)->length > 0) {
+            deleteFront(*pL);
+        }
+        free(*pL);
+        *pL = NULL;
     }
-    while (length(*pL) > 0) { //while (!isEmpty(*pL))
-        deleteFront(*pL);
-    }
-    free(*pL);
-    *pL = NULL;
 }
 
 // Access functions ----------------------------------------------------------- 
@@ -369,6 +369,8 @@ void deleteFront(List L) {
     if (L->cursor == L->front) {
         L->cursor = NULL;
         L->position = -1;
+    } else if (L->position > 0) {
+        L->position--;
     }
     // If the list is only 1 long, special behavior b/c the list is now empty
     if (L->length == 1) {

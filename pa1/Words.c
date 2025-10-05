@@ -14,7 +14,7 @@
 const char* DELIMITERS = "\t\n\r\\\"\'.,<>/?;:[{]}|`~!@#$%^&*()_+0123456789";
 
 // Function prototype is required for C to correctly resolve the function before main()
-int find_word(char** word_array, int count, const char* word); 
+int find_word(char** word_array, int count, const char* word);
 
 // Helper function to check if a word already exists in the array
 // Returns the index if found, or -1 if not found.
@@ -29,14 +29,13 @@ int find_word(char** word_array, int count, const char* word) {
 }
 
 int main(int argc, char* argv[]) {
-    
+
     FILE *in_file, *out_file;
-    char *input_file_name, *output_file_name;
-    
+
     // For reading lines from the file
     char line[MAX_LINE_LENGTH];
     char* token;
-    
+
     // Dynamic Array to hold unique words (array of char pointers)
     char** unique_words = NULL;
     int word_count = 0;
@@ -48,25 +47,21 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Assign file names
-    input_file_name = argv[1];
-    output_file_name = argv[2];
-
     // 2. Open the input file and check for errors
-    in_file = fopen(input_file_name, "r");
+    in_file = fopen(argv[1], "r");
     if (in_file == NULL) {
-        fprintf(stderr, "Words Error: Unable to open file %s for reading.\n", input_file_name);
+        fprintf(stderr, "Words Error: Unable to open file %s for reading.\n", argv[1]);
         exit(EXIT_FAILURE);
     }
 
     // 3. Open the output file and check for errors
-    out_file = fopen(output_file_name, "w");
+    out_file = fopen(argv[2], "w");
     if (out_file == NULL) {
-        fclose(in_file); 
-        fprintf(stderr, "Words Error: Unable to open file %s for writing.\n", output_file_name);
+        fclose(in_file);
+        fprintf(stderr, "Words Error: Unable to open file %s for writing.\n", argv[2]);
         exit(EXIT_FAILURE);
     }
-    
+
     // Initialize the dynamic array
     unique_words = (char**)calloc(capacity, sizeof(char*));
     if (unique_words == NULL) {
@@ -75,27 +70,26 @@ int main(int argc, char* argv[]) {
         fclose(out_file);
         exit(EXIT_FAILURE);
     }
-    
+
     // --- PART 1: FILE PARSING AND WORD STORAGE ---
-    
+
     // Read the input file line by line
     while (fgets(line, MAX_LINE_LENGTH, in_file) != NULL) {
-        
-        // FIX: Explicitly remove the newline character before tokenizing.
-        // This makes tokenization more reliable as newline is not part of the token.
+
+        // Explicitly remove the newline character before tokenizing.
         size_t len = strlen(line);
         if (len > 0 && line[len - 1] == '\n') {
             line[len - 1] = '\0';
         }
-        
+
         // Get the first token (word)
         token = strtok(line, DELIMITERS);
 
         while (token != NULL) {
-            
+
             // If the word is unique (not found in the array yet)
             if (find_word(unique_words, word_count, token) == -1) {
-                
+
                 // Check if capacity needs to be expanded
                 if (word_count == capacity) {
                     capacity *= 2;
@@ -114,7 +108,7 @@ int main(int argc, char* argv[]) {
                     }
                     unique_words = temp;
                 }
-                
+
                 // Store a copy of the word in the dynamic array
                 unique_words[word_count] = (char*)malloc(strlen(token) + 1);
                 if (unique_words[word_count] == NULL) {
@@ -131,7 +125,7 @@ int main(int argc, char* argv[]) {
                 strcpy(unique_words[word_count], token);
                 word_count++;
             }
-            
+
             // Get the next token in the line
             token = strtok(NULL, DELIMITERS);
         }
@@ -139,14 +133,15 @@ int main(int argc, char* argv[]) {
 
     // --- PART 2: INDIRECT SORTING LOGIC ---
     List sorted_indices = newList();
-    int current_index;
+    
+    // Append the first word's index directly to the empty list
+    if (word_count > 0) {
+        append(sorted_indices, 0);
+    }
     
     // The core of the sorting: iterate through the array and insert the index
     // into the List based on the alphabetical order of the corresponding word.
-    for (int i = 0; i < word_count; i++) {
-        
-        // Index of the word we are currently trying to place
-        current_index = i; 
+    for (int i = 1; i < word_count; i++) {
         
         // 1. Start the cursor at the front of the List
         moveFront(sorted_indices);
@@ -160,9 +155,9 @@ int main(int argc, char* argv[]) {
             // Comparison using strcmp():
             // If the new word (current_index) is alphabetically BEFORE the
             // word currently in the list (list_index), we found our spot.
-            if (strcmp(unique_words[current_index], unique_words[list_index]) < 0) {
+            if (strcmp(unique_words[i], unique_words[list_index]) < 0) {
                 // Found the spot! Insert the new index before the cursor.
-                insertBefore(sorted_indices, current_index);
+                insertBefore(sorted_indices, i);
                 break; // Exit the while loop
             }
             
@@ -172,7 +167,7 @@ int main(int argc, char* argv[]) {
         
         // 3. If the loop finished (cursor is undefined), the new index belongs at the back
         if (position(sorted_indices) == -1) {
-            append(sorted_indices, current_index);
+            append(sorted_indices, i);
         }
     }
 
