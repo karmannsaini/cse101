@@ -1,6 +1,6 @@
 Karmann Saini
 CruzID: 2034335
-CSE 101 pa1 README
+pa1
 
 List.h          The interface for the List ADT, containing function prototypes and type definitions.
 
