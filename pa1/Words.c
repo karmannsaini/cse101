@@ -11,7 +11,8 @@
 #define INITIAL_ARRAY_CAPACITY 10
 
 // The official list of non-alphabetic characters to discard, from the pa1.pdf handout.
-const char* DELIMITERS = "\t\n\r\\\"\'.,<>/?;:[{]}|`~!@#$%^&*()_+0123456789";
+// This string correctly includes a backslash and a double-quote character.
+const char* DELIMITERS = " \t\n\r\\\"\'.,<>/?;:[{]}|`~!@#$%^&*()_+=-0123456789";
 
 // Function prototype is required for C to correctly resolve the function before main()
 int find_word(char** word_array, int count, const char* word);
@@ -133,25 +134,25 @@ int main(int argc, char* argv[]) {
 
     // --- PART 2: INDIRECT SORTING LOGIC ---
     List sorted_indices = newList();
-    
+
     // Append the first word's index directly to the empty list
     if (word_count > 0) {
         append(sorted_indices, 0);
     }
-    
+
     // The core of the sorting: iterate through the array and insert the index
     // into the List based on the alphabetical order of the corresponding word.
     for (int i = 1; i < word_count; i++) {
-        
+
         // 1. Start the cursor at the front of the List
         moveFront(sorted_indices);
-        
+
         // 2. Iterate through the List until the correct position is found
         while (position(sorted_indices) != -1) {
-            
+
             // Get the index of the word currently under the cursor
             int list_index = get(sorted_indices);
-            
+
             // Comparison using strcmp():
             // If the new word (current_index) is alphabetically BEFORE the
             // word currently in the list (list_index), we found our spot.
@@ -160,11 +161,11 @@ int main(int argc, char* argv[]) {
                 insertBefore(sorted_indices, i);
                 break; // Exit the while loop
             }
-            
+
             // Move to the next index in the List
             moveNext(sorted_indices);
         }
-        
+
         // 3. If the loop finished (cursor is undefined), the new index belongs at the back
         if (position(sorted_indices) == -1) {
             append(sorted_indices, i);
@@ -172,7 +173,7 @@ int main(int argc, char* argv[]) {
     }
 
     // --- PART 3: OUTPUT AND CLEANUP ---
-    
+
     // 1. Print the List of sorted indices (Required format: (i0, i1, i2, ...))
     fprintf(out_file, "(");
     moveFront(sorted_indices);
@@ -192,14 +193,14 @@ int main(int argc, char* argv[]) {
         fprintf(out_file, "%s\n", unique_words[word_idx]);
         moveNext(sorted_indices);
     }
-    
-    // 3. Clean up allocated memory 
+
+    // 3. Clean up allocated memory
     for (int i = 0; i < word_count; i++) {
         free(unique_words[i]);
     }
     free(unique_words);
     freeList(&sorted_indices); // Free the List ADT memory!
-    
+
     // 4. Close files
     fclose(in_file);
     fclose(out_file);
