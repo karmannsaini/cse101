@@ -1,5 +1,7 @@
 #------------------------------------------------------------------------------
-# Makefile for CSE 101 Programming Assignment 1
+# Karmann Saini
+# CruzID:2034335
+# pa1
 #
 # make                     makes Words
 # make ListClient          makes ListClient
