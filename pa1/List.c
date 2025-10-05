@@ -509,9 +509,7 @@ List split(List L) {
     }
 
     List S = newList();
-    Node* current = L->front;
-    Node* stop = L->cursor;
-    
+        
     while (L->front != L->cursor) {
         Node* temp = L->front;
         L->front = L->front->next;
