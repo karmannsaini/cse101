@@ -1,3 +1,9 @@
+/*
+Karmann Saini
+CruzID:2034335
+pa1
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
