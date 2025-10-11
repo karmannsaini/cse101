@@ -10,9 +10,6 @@ pa2
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define NIL -1
-#define INF -10
-
 // private GraphObj type
 typedef struct GraphObj{
     int order;
@@ -79,4 +76,48 @@ void freeGraph(Graph* pG) {
 
 int getOrder(Graph G) {
     return(G->order);
+}
+
+int getNumEdges(Graph G) {
+    return(G->undirectedEdges);
+}
+
+int getNumArcs(Graph G) {
+    return(G->directedEdges);
+}
+
+int getSource(Graph G) {
+    return(G->source);
+}
+
+int getParent(Graph G, int u) {
+    if (1 > u || u > getOrder(G)) {
+        printf("Graph Error: calling getParent() with a vertex index out of range.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (G->source == NIL) {
+        return(NIL);
+    } else {
+        return(G->parent[u]);
+    }
+}
+
+int getDist(Graph G, int u) {
+    if (1 > u || u > getOrder(G)) {
+        printf("Graph Error: calling getDist() with a vertex index out of range.\n")
+        exit(EXIT_FAILURE);
+    }
+
+    if (getSource(G) == NIL) {
+        printf("\n")
+        exit(EXIT_FAILURE)
+    }
+
+    // if u happens to also be source
+    if (getSource(G) == u) {
+        append(L, u)
+    } else {
+        append(L, NIL);
+    }
 }
