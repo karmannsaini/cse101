@@ -5,10 +5,11 @@ pa2
 */
 
 #include "List.h"
-#include "Graph.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+typedef struct GraphObj* Graph;
 
 // constructors - destructors -------------------------------------------------
 
@@ -19,3 +20,9 @@ Graph newGraph(int n);
 // freeGraph() 
 // Frees all dynamic memory associated with Graph *pG and sets *pG to NULL. 
 void freeGraph(Graph* pG);
+
+// access functions -------------------------------------------------
+
+// getOrder() 
+// Returns the number of vertices in G. 
+int getOrder(Graph G); 

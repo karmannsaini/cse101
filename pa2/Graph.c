@@ -10,6 +10,8 @@ pa2
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define NIL -1
+#define INF -10
 
 // private GraphObj type
 typedef struct GraphObj{
@@ -37,28 +39,44 @@ Graph newGraph(int n) {
 
     G->adjacent = malloc((n+1) * sizeof(List));
     for (int i = 1; i < n + 1; i++) {
-        G->adjacent[i] = newList()
+        G->adjacent[i] = newList();
     }
-    G->color = 'W';
-    G->parent = NIL
-    G->distance = INF
+    G->color = malloc((n+1) * sizeof(char));
+    for (int i = 1; i < n + 1; i++) {
+        G->color[i] = 'W';
+    }
+    G->parent = malloc((n+1) * sizeof(int));
+    for (int i = 1; i < n + 1; i++) {
+        G->parent[i] = NIL;
+    }
+    G->distance = malloc((n+1) * sizeof(int));
+    for (int i = 1; i < n + 1; i++) {
+        G->distance[i] = INF;
+    }
 
-    return(G)
+    return(G);
 }
 
-// List newList() {
-//     List L;
-//     L = malloc(sizeof(ListObj));
-//     // Check precon: malloc must not return NULL
-//     if (L == NULL) {
-//         printf("List Error: newList: failed to allocate memory");
-//         exit(EXIT_FAILURE);
-//     }
-//     assert(L!=NULL);
-//     L->front = NULL;
-//     L->back = NULL;
-//     L->cursor = NULL;
-//     L->length = 0;
-//     L->position = -1;
-//     return(L);
-// };
+void freeGraph(Graph* pG) {
+    if (pG != NULL && *pG != NULL) {
+        for (int i = 1; i <= (*pG)->order; i++) {
+            freeList(&((*pG)->adjacent[i]));
+    }
+
+    free((*pG)->adjacent);
+    (*pG)->adjacent = NULL;
+
+    free((*pG)->color);
+    (*pG)->color = NULL;
+    free((*pG)->parent);
+    (*pG)->parent = NULL;
+    free((*pG)->distance);
+    (*pG)->distance = NULL;
+
+    free(*pG);
+    *pG = NULL;
+}
+
+int getOrder(Graph G) {
+    return(G->order);
+}
