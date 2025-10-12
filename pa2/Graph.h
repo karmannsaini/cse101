@@ -78,3 +78,12 @@ void addEdge(Graph G, int u, int v);
 // Pre: 1 <= u <= getOrder(G), 1 <= v <= getOrder(G) 
 void addArc(Graph G, int u, int v);
 
+// BFS() 
+// Runs the Breadth First Search algorithm on G with source vertex s. 
+void BFS(Graph G, int s);
+
+// other functions -------------------------------------------------
+
+// printGraph() 
+// Prints the adjacency list representation of G to FILE* out. 
+void printGraph(FILE* out, Graph G);

@@ -216,3 +216,52 @@ void addArc(Graph G, int u, int v) {
     
     G->directedEdges++;
 }
+
+void BFS(Graph G, int s) {
+    for (int i = 1; i < getOrder(G) + 1; i++) {
+        G->color[i] = 'W';
+        G->parent[i] = NIL;
+        G->distance[i] = INF;
+        }
+
+    G->color[s] = 'G';
+    G->distance[s] = 0;
+    
+    // Construct a new empty queue
+    List Q = newList();
+    // append is our Enqueue
+    append(Q, s);
+    while (!isEmpty(Q)) {
+        // deleteFront paired with getFront is our Dequeue
+        int x = getFront(Q);
+        deleteFront(Q);
+        for (moveFront(G->adjacent[x]);  position(G->adjacent[x]) != -1; moveNext(G->adjacent[x])) {
+            int currVertex = get(G->adjacent[x]);
+            if (G->color[currVertex] == 'W') {
+                G->color[currVertex] = 'G';
+                G->parent[currVertex] = x;
+                G->distance[currVertex] = G->distance[x] + 1;
+                append(Q, currVertex);
+            }
+            
+        }
+        G->color[x] = 'B';
+    }
+    G->source = s;
+    freeList(Q);
+}
+
+void printGraph(FILE* out, Graph G) {
+    int i;
+    for (i = 1; i <= getOrder(G); i++) {
+        fprintf(out, "%d: ", i);
+        
+        List L = G->adjacent[i];
+        moveFront(L);
+        while (position(L) != -1) {
+            fprintf(out, "%d ", get(L));
+            moveNext(L);
+        }
+        fprintf(out, "\n");
+    }
+}
