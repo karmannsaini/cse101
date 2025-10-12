@@ -143,7 +143,15 @@ void getPath(List L, Graph G, int u) {
 // manipulation proccedures -------------------------------------------------
 
 void makeNull(Graph G){
-
+    for (int i = 1; i < getOrder(G) + 1; i++) {
+        clear(G->adjacent[i]);
+        G->color[i] = 'W';
+        G->parent[i] = NIL;
+        G->distance[i] = INF;
+    }
+    G->undirectedEdges = 0;
+    G->directedEdges = 0;
+    G->source = NIL;
 }
 
 void addEdge(Graph G, int u, int v) {
