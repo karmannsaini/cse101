@@ -58,8 +58,8 @@ void freeGraph(Graph* pG) {
     if (pG != NULL && *pG != NULL) {
         for (int i = 1; i <= (*pG)->order; i++) {
             freeList(&((*pG)->adjacent[i]));
+        }
     }
-
     free((*pG)->adjacent);
     (*pG)->adjacent = NULL;
 
@@ -71,8 +71,10 @@ void freeGraph(Graph* pG) {
     (*pG)->distance = NULL;
 
     free(*pG);
-    *pG = NULL;
+    *pG = NULL; 
 }
+
+// access functions -------------------------------------------------
 
 int getOrder(Graph G) {
     return(G->order);
@@ -105,19 +107,104 @@ int getParent(Graph G, int u) {
 
 int getDist(Graph G, int u) {
     if (1 > u || u > getOrder(G)) {
-        printf("Graph Error: calling getDist() with a vertex index out of range.\n")
+        printf("Graph Error: calling getDist() with a vertex index out of range.\n");
         exit(EXIT_FAILURE);
     }
 
     if (getSource(G) == NIL) {
-        printf("\n")
-        exit(EXIT_FAILURE)
+        return(INF);
+    } else {
+        return(G->distance[u]);
+    }
+}
+
+void getPath(List L, Graph G, int u) {
+    if (1 > u || u > getOrder(G)) {
+        printf("Graph Error: calling getPath() with a vertex index out of range.\n");
+        exit(EXIT_FAILURE);
     }
 
-    // if u happens to also be source
-    if (getSource(G) == u) {
-        append(L, u)
-    } else {
-        append(L, NIL);
+    if (getSource(G) == NIL) {
+        printf("Graph Error: BFS() has not been run.\n");
+        exit(EXIT_FAILURE);
     }
+
+    if (getDist(G, u) == INF) {
+        append(L, NIL);                 // if vertex unreachable
+        return;
+    } else if (getSource(G) == u) {
+        append(L, u);                   // if u happens to also be source
+    } else {
+        getPath(L, G, getParent(G, u)); // recursive call
+        append(L, u);
+    }
+}
+
+// manipulation proccedures -------------------------------------------------
+
+void makeNull(Graph G){
+
+}
+
+void addEdge(Graph G, int u, int v) {
+    if (1 > u || u > getOrder(G)) {
+        printf("Graph Error: calling addEdge() with a vertex 'u' index out of range.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (1 > v || v > getOrder(G)) {
+        printf("Graph Error: calling addEdge() with a vertex 'v' index out of range.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // add v to u adjacency list
+    moveFront(G->adjacent[u]);
+    while(position(G->adjacent[u]) != -1 && get(G->adjacent[u]) < v) {
+        moveNext(G->adjacent[u]);
+    }
+
+    if (position(G->adjacent[u]) == -1) {         // we are off the back of adj list
+        append(G->adjacent[u], v);
+    } else {
+        insertBefore(G->adjacent[u], v);
+    }
+
+    // add u to v adjacency list
+    moveFront(G->adjacent[v]);
+    while(position(G->adjacent[v]) != -1 && get(G->adjacent[v]) < u) {
+        moveNext(G->adjacent[v]);
+    }
+
+    if (position(G->adjacent[v]) == -1) {         // we are off the back of adj list
+        append(G->adjacent[v], u);
+    } else {
+        insertBefore(G->adjacent[v], u);
+    }
+
+    G->undirectedEdges++;
+}
+
+void addArc(Graph G, int u, int v) {
+    if (1 > u || u > getOrder(G)) {
+        printf("Graph Error: calling addArc() with a vertex 'u' index out of range.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (1 > v || v > getOrder(G)) {
+        printf("Graph Error: calling addArc() with a vertex 'v' index out of range.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    moveFront(G->adjacent[u]);
+    while(position(G->adjacent[u]) != -1 && get(G->adjacent[u]) < v) {
+        moveNext(G->adjacent[u]);
+    }
+
+    if (position(G->adjacent[u]) == -1) {         // we are off the back of adj list
+        append(G->adjacent[u], v);
+    } else {
+        insertBefore(G->adjacent[u], v);
+    }
+    
+    G->directedEdges++;
 }

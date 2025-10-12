@@ -11,7 +11,7 @@ pa2
 
 // constants
 #define NIL -1
-#define INF -10
+#define INF -1000000
 
 typedef struct GraphObj* Graph;
 
@@ -54,4 +54,27 @@ int getParent(Graph G, int u);
 // Returns the distance from the source vertex to u if BFS() has been called, 
 // otherwise returns INF. 
 // Pre: 1 <= u <= getOrder(G) 
-int getDist(Graph G, int u); 
+int getDist(Graph G, int u);
+
+// getPath() 
+// If vertex u is reachable from the source, appends the vertices of a shortest 
+// source-u path to List L. Otherwise, appends NIL to L. 
+// Pre: 1 <= u <= getOrder(G), getSource(G) != NIL 
+void getPath(List L, Graph G, int u);
+
+// manipulation procedures -------------------------------------------------
+
+// makeNull() 
+// Resets G to its initial state. 
+void makeNull(Graph G);
+
+// addEdge() 
+// Creates an undirected edge joining vertex u to vertex v. 
+// Pre: 1 <= u <= getOrder(G), 1 <= v <= getOrder(G) 
+void addEdge(Graph G, int u, int v);
+
+// addArc() 
+// Creates a directed edge joining vertex u to vertex v. 
+// Pre: 1 <= u <= getOrder(G), 1 <= v <= getOrder(G) 
+void addArc(Graph G, int u, int v);
+
