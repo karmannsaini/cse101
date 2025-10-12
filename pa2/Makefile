@@ -16,7 +16,7 @@
 MAIN           = FindPath
 MAINOBJ        = $(MAIN).o
 MAINSRC        = $(MAIN).c
-TEST           = GraphClient
+TEST           = GraphTest
 TESTOBJ        = $(TEST).o
 TESTSRC        = $(TEST).c
 ADT1           = Graph

@@ -4,7 +4,6 @@ CruzID:2034335
 pa2
 */
 
-#include "List.h"
 #include "Graph.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -155,63 +154,66 @@ void makeNull(Graph G){
 }
 
 void addEdge(Graph G, int u, int v) {
-    if (1 > u || u > getOrder(G)) {
-        printf("Graph Error: calling addEdge() with a vertex 'u' index out of range.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (1 > v || v > getOrder(G)) {
-        printf("Graph Error: calling addEdge() with a vertex 'v' index out of range.\n");
+    if (1 > u || u > getOrder(G) || 1 > v || v > getOrder(G)) {
+        printf("Graph Error: calling addEdge() with a vertex index out of range.\n");
         exit(EXIT_FAILURE);
     }
 
     // add v to u adjacency list
-    moveFront(G->adjacent[u]);
-    while(position(G->adjacent[u]) != -1 && get(G->adjacent[u]) < v) {
-        moveNext(G->adjacent[u]);
-    }
-
-    if (position(G->adjacent[u]) == -1) {         // we are off the back of adj list
-        append(G->adjacent[u], v);
+    List L_u = G->adjacent[u];
+    if (length(L_u) == 0) {
+        append(L_u, v);
     } else {
-        insertBefore(G->adjacent[u], v);
+        moveFront(L_u);
+        while(position(L_u) != -1 && get(L_u) < v) {
+            moveNext(L_u);
+        }
+        if (position(L_u) == -1) {
+            append(L_u, v);
+        } else {
+            insertBefore(L_u, v);
+        }
     }
 
     // add u to v adjacency list
-    moveFront(G->adjacent[v]);
-    while(position(G->adjacent[v]) != -1 && get(G->adjacent[v]) < u) {
-        moveNext(G->adjacent[v]);
-    }
-
-    if (position(G->adjacent[v]) == -1) {         // we are off the back of adj list
-        append(G->adjacent[v], u);
+    List L_v = G->adjacent[v];
+    if (length(L_v) == 0) {
+        append(L_v, u);
     } else {
-        insertBefore(G->adjacent[v], u);
+        moveFront(L_v);
+        while(position(L_v) != -1 && get(L_v) < u) {
+            moveNext(L_v);
+        }
+        if (position(L_v) == -1) {
+            append(L_v, u);
+        } else {
+            insertBefore(L_v, u);
+        }
     }
-
+    
     G->undirectedEdges++;
 }
 
 void addArc(Graph G, int u, int v) {
-    if (1 > u || u > getOrder(G)) {
-        printf("Graph Error: calling addArc() with a vertex 'u' index out of range.\n");
+    if (1 > u || u > getOrder(G) || 1 > v || v > getOrder(G)) {
+        printf("Graph Error: calling addArc() with a vertex index out of range.\n");
         exit(EXIT_FAILURE);
     }
 
-    if (1 > v || v > getOrder(G)) {
-        printf("Graph Error: calling addArc() with a vertex 'v' index out of range.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    moveFront(G->adjacent[u]);
-    while(position(G->adjacent[u]) != -1 && get(G->adjacent[u]) < v) {
-        moveNext(G->adjacent[u]);
-    }
-
-    if (position(G->adjacent[u]) == -1) {         // we are off the back of adj list
-        append(G->adjacent[u], v);
+    // temp var to hold adjacency list for vertex u
+    List L_u = G->adjacent[u];
+    if (length(L_u) == 0) {
+        append(L_u, v);
     } else {
-        insertBefore(G->adjacent[u], v);
+        moveFront(L_u);
+        while(position(L_u) != -1 && get(L_u) < v) {
+            moveNext(L_u);
+        }
+        if (position(L_u) == -1) {
+            append(L_u, v);
+        } else {
+            insertBefore(L_u, v);
+        }
     }
     
     G->directedEdges++;
@@ -232,8 +234,8 @@ void BFS(Graph G, int s) {
     // append is our Enqueue
     append(Q, s);
     while (!isEmpty(Q)) {
-        // deleteFront paired with getFront is our Dequeue
-        int x = getFront(Q);
+        // deleteFront paired with front is our Dequeue
+        int x = front(Q);
         deleteFront(Q);
         for (moveFront(G->adjacent[x]);  position(G->adjacent[x]) != -1; moveNext(G->adjacent[x])) {
             int currVertex = get(G->adjacent[x]);
@@ -248,7 +250,7 @@ void BFS(Graph G, int s) {
         G->color[x] = 'B';
     }
     G->source = s;
-    freeList(Q);
+    freeList(&Q);
 }
 
 void printGraph(FILE* out, Graph G) {
@@ -257,11 +259,22 @@ void printGraph(FILE* out, Graph G) {
         fprintf(out, "%d: ", i);
         
         List L = G->adjacent[i];
+        
+        // ()
+        fprintf(out, "(");
+        
         moveFront(L);
         while (position(L) != -1) {
-            fprintf(out, "%d ", get(L));
+            fprintf(out, "%d", get(L)); // Print the element
+
+            // If we are not at the last element print a comma and space
             moveNext(L);
+            if (position(L) != -1) {
+                fprintf(out, ", ");
+            }
         }
-        fprintf(out, "\n");
+        
+        // )
+        fprintf(out, ")\n");
     }
 }

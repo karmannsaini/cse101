@@ -6,132 +6,126 @@ pa2
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "List.h"
+#include <stdbool.h>
 #include "Graph.h"
 
+// Global test count variables
+int test_count = 0;
+int passed_count = 0;
 
-// int main(void) {
-//     Graph G = newGraph(6);
+// Helper function to check test results
+void run_test(bool condition, const char* message) {
+    test_count++;
+    if (condition) {
+        passed_count++;
+        fprintf(stdout, "  PASS %d: %s\n", test_count, message);
+    } else {
+        fprintf(stdout, "  FAIL %d: %s\n", test_count, message);
+    }
+}
 
-//     // test getOrder
-//     if (getOrder(G) == 6) {
-//         printf("getOrder correctly outputs returns the number of vertices.\n");
-//     } else {
-//         printf("getOrder returns and incorrect number of vertices.\n");
-//     }
+// Test Group 1: Constructors and Accessors
+void test_constructors_accessors() {
+    fprintf(stdout, "\n--- TEST GROUP 1: Constructors & Accessors ---\n");
+    Graph G = newGraph(10);
+    
+    // Test newGraph() and initial state
+    run_test(getOrder(G) == 10, "newGraph sets correct number of vertices.");
+    run_test(getNumEdges(G) == 0, "newGraph sets initial edge count to 0.");
+    run_test(getNumArcs(G) == 0, "newGraph sets initial arc count to 0.");
+    run_test(getSource(G) == NIL, "newGraph sets source to NIL.");
 
-//     // test if newGraph sets undirectedEdges = 0
-//     if (getNumEdges(G) == 0) {
-//         printf("newGraph correctly sets undirectedEdges = 0.\n");
-//     } else {
-//         printf("newGraph does not set undirectedEdges = 0.\n");
-//     }
+    // Test getParent and getDist on a new graph
+    run_test(getParent(G, 1) == NIL, "getParent returns NIL before BFS.");
+    run_test(getDist(G, 1) == INF, "getDist returns INF before BFS.");
+    
+    freeGraph(&G);
+    run_test(G == NULL, "freeGraph sets the pointer to NULL.");
+}
 
-//     // test if newGraph sets directedEdges = 0
-//     if (getNumArcs(G) == 0) {
-//         printf("newGraph correctly sets directedEdges = 0.\n");
-//     } else {
-//         printf("newGraph does not set directedEdges = 0.\n");
-//     }
+// Test Group 2: Manipulation Procedures
+void test_manipulation_procedures() {
+    fprintf(stdout, "\n--- TEST GROUP 2: Manipulation Procedures ---\n");
+    Graph G = newGraph(6);
+    
+    // Test addEdge()
+    addEdge(G, 1, 2);
+    addEdge(G, 2, 3);
+    run_test(getNumEdges(G) == 2, "addEdge increases edge count.");
 
-//     // test if newGraph sets source = NIL
-//     if (getSource(G) == NIL) {
-//         printf("newGraph correctly sets source = NIL.\n");
-//     } else {
-//         printf("newGraph does not set sourec = NIL.\n");
-//     }
+    // Test addArc()
+    addArc(G, 4, 5);
+    addArc(G, 5, 6);
+    run_test(getNumArcs(G) == 2, "addArc increases arc count.");
+    
+    // Test makeNull()
+    makeNull(G);
+    run_test(getNumEdges(G) == 0 && getNumArcs(G) == 0, "makeNull resets edge and arc counts.");
 
-// }
+    freeGraph(&G);
+}
 
-int main(int argc, char* argv[]){
-   int u, v, s, max, min, d, n, offset;
-   List  C = newList(); // central vertices 
-   List  P = newList(); // peripheral vertices 
-   List  E = newList(); // eccentricities 
+// Test Group 3: BFS and getPath
+void test_bfs_and_getpath() {
+    fprintf(stdout, "\n--- TEST GROUP 3: BFS and getPath ---\n");
+    Graph G = newGraph(6);
+    
+    // Build the graph from pa2.pdf example
+    addEdge(G, 1, 2);
+    addEdge(G, 1, 3);
+    addEdge(G, 2, 4);
+    addEdge(G, 2, 5);
+    addEdge(G, 2, 6);
+    addEdge(G, 3, 4);
+    addEdge(G, 4, 5);
+    addEdge(G, 5, 6);
+    
+    // Test BFS from source 1
+    BFS(G, 1);
+    run_test(getSource(G) == 1, "BFS correctly sets the source vertex.");
+    run_test(getDist(G, 5) == 2, "BFS calculates correct distance to a reachable vertex (1-5).");
+    run_test(getDist(G, 4) == 2, "BFS calculates correct distance to a reachable vertex (1-4).");
+    run_test(getDist(G, 1) == 0, "BFS calculates a distance of 0 to the source.");
 
-   // encoded graph 
-   char graphData[] = "100 77 86 20 18 4 44 16 13 64 73 21 41 82 100 100 65 74 92 "
-                      "60 96 97 90 64 89 99 64 7 23 3 53 17 66 76 67 21 68 78 93 "
-                      "50 31 63 94 50 45 23 20 65 72 3 4 87 24 25 33 44 5 37 87 87 "
-                      "18 65 31 31 1 84 3 80 16 64 52 84 56 56 86 83 49 72 67 90 8 "
-                      "22 96 51 73 71 62 36 62 92 43 19 34 84 17 75 91 35 82 29 33 "
-                      "25 23 65 89 92 58 31 22 71 33 34 10 30 24 27 44 26 8 99 56 "
-                      "25 40 47 12 69 84 2 11 43 59 99 23 34 1 3 39 42 43 87 6 50 "
-                      "55 83 92 62 53 90 15 69 31 45 24 34 45 8 45 8 21 98 36 50 19 "
-                      "21 71 82 1 77 65 55 15 73 28 85 5 37 49 96 3 37 84 90 81 94 "
-                      "98 90 73 98 97 89 34 80 66 70 30 26 2 20 59 5 66 74 22 80 76 "
-                      "62 32 62 61 50 16 52 73 69 4 97 81 46 90 30 11 94 25 83 64 65 "
-                      "62 12 39 28 50 30 84 72 68 38 52 43 65 60 81 8 4 82 34 55 10 "
-                      "44 41 57 61 9 10 14 15 48 49 54 55 79 80 88 89 95 96 75 63 "
-                      "78 79 0 0";
-   char* data = graphData;
+    // Test getPath for a reachable path
+    List L = newList();
+    getPath(L, G, 5);
+    moveFront(L);
+    run_test(get(L) == 1, "getPath first vertex is source.");
+    moveNext(L);
+    run_test(get(L) == 2, "getPath intermediate vertex is correct.");
+    moveNext(L);
+    run_test(get(L) == 5, "getPath last vertex is destination.");
+    run_test(length(L) == 3, "getPath returns correct path length.");
+    clear(L);
+    
+    // Test BFS on a disconnected graph
+    Graph H = newGraph(7);
+    addEdge(H, 1, 4);
+    addEdge(H, 2, 3);
+    addEdge(H, 3, 7);
+    BFS(H, 1);
+    run_test(getDist(H, 7) == INF, "getDist returns INF for unreachable vertex.");
+    
+    // Test getPath for an unreachable vertex
+    getPath(L, H, 7);
+    moveFront(L);
+    run_test(get(L) == NIL, "getPath returns NIL for unreachable vertex.");
+    
+    freeList(&L);
+    freeGraph(&G);
+    freeGraph(&H);
+}
 
-   // Build graph G
-   sscanf(data, " %d%n", &n, &offset); 
-   Graph G = newGraph(n);
-   data += offset;
-   while( sscanf(data, " %d %d%n", &u, &v, &offset)==2 ){
-      if( u*v==0 ) break;
-      addEdge(G, u, v);
-      data += offset;
-   }
+int main() {
+    test_constructors_accessors();
+    test_manipulation_procedures();
+    test_bfs_and_getpath();
 
-   // Print adjacency list representation of G
-   printGraph(stdout, G);
+    fprintf(stdout, "\n==========================================================\n");
+    fprintf(stdout, "SUMMARY: %d tests run, %d passed, %d failed\n", 
+            test_count, passed_count, test_count - passed_count);
+    fprintf(stdout, "==========================================================\n");
 
-   // Calculate the eccentricity of each vertex 
-   for(s=1; s<=n; s++){
-      BFS(G, s);
-      max = getDist(G, 1);
-      for(v=2; v<=n; v++){
-         d = getDist(G, v);
-         max = ( max<d ? d : max );
-      }
-      append(E, max);
-   }
-
-   // Determine the Radius and Diameter of G, as well as the Central and 
-   // Peripheral vertices.
-   append(C, 1);
-   append(P, 1);
-   min = max = front(E);
-   moveFront(E);
-   moveNext(E);
-   for(v=2; v<=n; v++){
-      d = get(E);
-      if( d==min ){
-         append(C, v);
-      }else if( d<min ){
-         min = d;
-         clear(C);
-         append(C, v);
-      }
-      if( d==max ){
-         append(P, v);
-      }else if( d>max ){
-         max = d;
-         clear(P);
-         append(P, v);
-      }
-      moveNext(E);
-   }
-
-   // Print results 
-   printf("\n");
-   printf("Radius = %d\n", min);
-   printf("Central vert%s: ", length(C)==1?"ex":"ices");
-   printList(stdout, C);
-   printf("\n");
-   printf("Diameter = %d\n", max);
-   printf("Peripheral vert%s: ", length(P)==1?"ex":"ices");
-   printList(stdout, P);
-   printf("\n");
-
-   // Free objects 
-   freeList(&C);
-   freeList(&P);
-   freeList(&E);
-   freeGraph(&G);
-
-   return(0);
+    return EXIT_SUCCESS;
 }
