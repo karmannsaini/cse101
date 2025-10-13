@@ -16,14 +16,17 @@ void printPathList(FILE* out, List L) {
         return; 
     }
     
+    // check list head for printing logic
     moveFront(L);
     int first_element = get(L);
 
-    // If getPath returned NIL, the path = unreachable
+    // if getPath returned NIL, the path is unreachable
     if (first_element == NIL) {
+        // main should handle the unreachable message entirely
         return; 
     }
 
+    // this section prints a reachable path
     fprintf(out, "(");
     fprintf(out, "%d", first_element); 
     
@@ -32,7 +35,7 @@ void printPathList(FILE* out, List L) {
         fprintf(out, ", %d", get(L));
         moveNext(L);
     }
-    fprintf(out, ")");
+    fprintf(out, ")"); // path content ends here
 }
 
 
@@ -41,7 +44,7 @@ int main(int argc, char* argv[]) {
     int n; 
     int u, v; 
 
-    //input and output file names
+    //input and output file names check
     if (argc != 3) {
         fprintf(stderr, "Usage: %s <input file> <output file>\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -55,12 +58,12 @@ int main(int argc, char* argv[]) {
 
     out_file = fopen(argv[2], "w");
     if (out_file == NULL) {
-        fclose(in_file); 
+        fclose(in_file); // close input file handle
         fprintf(stderr, "FindPath Error: Unable to open output file %s.\n", argv[2]);
         exit(EXIT_FAILURE);
     }
 
-    // Read initial vertex count n
+    // read initial vertex count n
     if (fscanf(in_file, "%d", &n) != 1 || n < 1) {
         fprintf(stderr, "FindPath Error: Invalid initial graph size n.\n");
         fclose(in_file);
@@ -70,12 +73,12 @@ int main(int argc, char* argv[]) {
 
     Graph G = newGraph(n);
 
-    // Read graph edges until line "0 0" is encountered.
+    // read graph edges until line "0 0" is encountered.
     while (fscanf(in_file, "%d %d", &u, &v) == 2 && (u != 0 || v != 0)) {
         if (u >= 1 && u <= n && v >= 1 && v <= n) {
-            addEdge(G, u, v); // Using addEdge for undirected edges.
+            addEdge(G, u, v); // undirected edge
         } else {
-             // Skipping invalid edges is safer than crashing.
+             // skipping invalid edges is safer than crashing.
              fprintf(stderr, "FindPath Warning: Edge (%d, %d) ignored (out of range [1, %d]).\n", u, v, n);
         }
     }
@@ -83,13 +86,22 @@ int main(int argc, char* argv[]) {
     printGraph(out_file, G);
     fprintf(out_file, "\n"); 
 
-    // Process all path queries.
+    // process all path queries.
     List path_list = newList();
+    // this flag manages the single blank line between query blocks
+    bool first_query = true; 
 
-    // Read source (u) and destination (v) pairs until dummy line "0 0".
+    // read source (u) and destination (v) pairs until dummy line "0 0".
     while (fscanf(in_file, "%d %d", &u, &v) == 2 && (u != 0 || v != 0)) {
         int s = u; // source
         int d = v; // destination
+        int distance;
+
+        // Print the blank line separator before subsequent queries
+        if (!first_query) {
+            fprintf(out_file, "\n");
+        }
+        first_query = false;
 
         if (s < 1 || s > n || d < 1 || d > n) {
              fprintf(stderr, "FindPath Warning: Skipping path query with out-of-range vertices (%d, %d).\n", s, d);
@@ -97,28 +109,27 @@ int main(int argc, char* argv[]) {
         }
 
         BFS(G, s);
-        int distance = getDist(G, d); 
+        distance = getDist(G, d); 
 
         clear(path_list);
         getPath(path_list, G, d);
 
         fprintf(out_file, "The distance from %d to %d is ", s, d);
         
-        // If distance is INF or getPath returned NIL, print unreachability message.
+        // if distance is INF or getPath returned NIL, print unreachability message.
         if (distance == INF || front(path_list) == NIL) {
             fprintf(out_file, "infinity\n");
-            fprintf(out_file, "No %d-%d path exists\n", s, d);
+            fprintf(out_file, "No %d-%d path exists\n", s, d); // end of unreachable block
         } else {
             fprintf(out_file, "%d\n", distance);
             fprintf(out_file, "A shortest %d-%d path is: ", s, d);
             printPathList(out_file, path_list);
-            fprintf(out_file, "\n");
+            fprintf(out_file, "\n"); // end of reachable block
         }
         
-        fprintf(out_file, "\n"); // Blank line after each query block.
     }
 
-    // Free memory and close files.
+    // free memory and close files.
     freeList(&path_list);
     freeGraph(&G);
     

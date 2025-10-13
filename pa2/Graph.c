@@ -215,7 +215,7 @@ void addArc(Graph G, int u, int v) {
             insertBefore(L_u, v);
         }
     }
-    
+
     G->directedEdges++;
 }
 
@@ -237,15 +237,18 @@ void BFS(Graph G, int s) {
         // deleteFront paired with front is our Dequeue
         int x = front(Q);
         deleteFront(Q);
-        for (moveFront(G->adjacent[x]);  position(G->adjacent[x]) != -1; moveNext(G->adjacent[x])) {
-            int currVertex = get(G->adjacent[x]);
-            if (G->color[currVertex] == 'W') {
-                G->color[currVertex] = 'G';
-                G->parent[currVertex] = x;
-                G->distance[currVertex] = G->distance[x] + 1;
-                append(Q, currVertex);
+        List L_adj = G->adjacent[x];
+        if (length(L_adj) > 0) {            // Check precondition for moveFront
+            for (moveFront(G->adjacent[x]);  position(G->adjacent[x]) != -1; moveNext(G->adjacent[x])) {
+                int currVertex = get(G->adjacent[x]);
+                if (G->color[currVertex] == 'W') {
+                    G->color[currVertex] = 'G';
+                    G->parent[currVertex] = x;
+                    G->distance[currVertex] = G->distance[x] + 1;
+                    append(Q, currVertex);
+                }
+                
             }
-            
         }
         G->color[x] = 'B';
     }
@@ -254,27 +257,21 @@ void BFS(Graph G, int s) {
 }
 
 void printGraph(FILE* out, Graph G) {
-    int i;
-    for (i = 1; i <= getOrder(G); i++) {
-        fprintf(out, "%d: ", i);
+    for (int i = 1; i <= getOrder(G); i++) {
+        fprintf(out, "%d: (", i);
         
         List L = G->adjacent[i];
-        
-        // ()
-        fprintf(out, "(");
-        
-        moveFront(L);
-        while (position(L) != -1) {
-            fprintf(out, "%d", get(L)); // Print the element
-
-            // If we are not at the last element print a comma and space
-            moveNext(L);
-            if (position(L) != -1) {
-                fprintf(out, ", ");
+        if (L != NULL && length(L) > 0) {  
+            moveFront(L);
+            fprintf(out, "%d", get(L));
+            while (position(L) != -1) {
+                moveNext(L);
+                if (position(L) != -1) {
+                    fprintf(out, ", %d", get(L));
+                }
             }
         }
         
-        // )
         fprintf(out, ")\n");
     }
 }
