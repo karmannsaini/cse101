@@ -112,7 +112,7 @@ int getParent(Graph G, int u) {
         exit(EXIT_FAILURE);
     }
 
-    if (G->source == NIL) {
+    if (!G->isComplete) {
         return(NIL);
     } else {
         return(G->parent[u]);
@@ -311,7 +311,10 @@ Graph transpose(Graph G) {
             addArc(T, v, u);
             moveNext(adjacentListG);
         }
-    } 
+    }
+
+    //T->directedEdges = G->directedEdges;
+
     return T;
 }
 
