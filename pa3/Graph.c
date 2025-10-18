@@ -14,12 +14,13 @@ typedef struct GraphObj{
     int order;
     int undirectedEdges;
     int directedEdges;
-    int source;
 
     List* adjacent;
     char* color;
     int* parent;
     int* distance;
+    int* discoveryTime;
+    int* finishTime;
 
 } GraphObj;
 
@@ -31,7 +32,7 @@ Graph newGraph(int n) {
     G->order = n;
     G->undirectedEdges = 0;
     G->directedEdges = 0;
-    G->source = NIL;
+    G->discoveryTime = UNDEF;
 
     G->adjacent = malloc((n+1) * sizeof(List));
     for (int i = 1; i < n + 1; i++) {
@@ -87,10 +88,6 @@ int getNumArcs(Graph G) {
     return(G->directedEdges);
 }
 
-int getSource(Graph G) {
-    return(G->source);
-}
-
 //a parent of a vertex may be NIL
 int getParent(Graph G, int u) {
     if (1 > u || u > getOrder(G)) {
@@ -105,39 +102,8 @@ int getParent(Graph G, int u) {
     }
 }
 
-int getDist(Graph G, int u) {
-    if (1 > u || u > getOrder(G)) {
-        printf("Graph Error: calling getDist() with a vertex index out of range.\n");
-        exit(EXIT_FAILURE);
-    }
+int getDiscover(Graph G, int u) {
 
-    if (getSource(G) == NIL) {
-        return(INF);
-    } else {
-        return(G->distance[u]);
-    }
-}
-
-void getPath(List L, Graph G, int u) {
-    if (1 > u || u > getOrder(G)) {
-        printf("Graph Error: calling getPath() with a vertex index out of range.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (getSource(G) == NIL) {
-        printf("Graph Error: BFS() has not been run.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (getDist(G, u) == INF) {
-        append(L, NIL);                 // if vertex unreachable
-        return;
-    } else if (getSource(G) == u) {
-        append(L, u);                   // if u happens to also be source
-    } else {
-        getPath(L, G, getParent(G, u)); // recursive call
-        append(L, u);
-    }
 }
 
 int getFinish(Graph G, int u) {
@@ -224,42 +190,40 @@ void addArc(Graph G, int u, int v) {
     G->directedEdges++;
 }
 
-void BFS(Graph G, int s) {
+void DFS(Graph G, List s) {
     for (int i = 1; i < getOrder(G) + 1; i++) {
         G->color[i] = 'W';
         G->parent[i] = NIL;
-        G->distance[i] = INF;
-        }
-
-    G->color[s] = 'G';
-    G->distance[s] = 0;
-    
-    // Construct a new empty queue
-    List Q = newList();
-    // append is our Enqueue
-    append(Q, s);
-    while (!isEmpty(Q)) {
-        // deleteFront paired with front is our Dequeue
-        int x = front(Q);
-        deleteFront(Q);
-        List L_adj = G->adjacent[x];
-        if (length(L_adj) > 0) {            // Check precondition for moveFront
-            for (moveFront(G->adjacent[x]);  position(G->adjacent[x]) != -1; moveNext(G->adjacent[x])) {
-                int currVertex = get(G->adjacent[x]);
-                if (G->color[currVertex] == 'W') {
-                    G->color[currVertex] = 'G';
-                    G->parent[currVertex] = x;
-                    G->distance[currVertex] = G->distance[x] + 1;
-                    append(Q, currVertex);
-                }
-                
-            }
-        }
-        G->color[x] = 'B';
     }
-    G->source = s;
-    freeList(&Q);
+    // local var time
+    int time = 0;
+
+    // main loof of DFS
+    for (int i = 1; i < getOrder(G) + 1; i++) {
+        if (G->color[i] == 'W')
+            time = Visit(G, i, time);
+    }
 }
+
+int Visit(Graph G, int x, int time) {
+    G->discoveryTime[x] = ++time;
+    G->color[x] = 'G';
+    for (int y = 1; y < length(G->adjacent[x]); y++) {
+        if (G->color[y] == 'W') {
+            G->parent[y] = x;
+            time = Visit(G, y, time);
+        }
+    }
+    G->color[x] = 'B';
+    G->finishTime[x] = ++time;
+    return time;
+}
+
+// other operations -----------------------------------------------------------
+
+Graph copyGraph(Graph G);
+
+Graph transpose(Graph G);
 
 void printGraph(FILE* out, Graph G) {
     for (int i = 1; i <= getOrder(G); i++) {

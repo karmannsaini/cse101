@@ -33,35 +33,20 @@ void freeGraph(Graph* pG);
 int getOrder(Graph G);
 
 // getNumEdges() 
-// Returns the number of edges in G. 
+// Returns the number of (undirected) edges in G. 
 int getNumEdges(Graph G);
 
 // getNumArcs() 
-// Returns the number of Arcs in G. 
+// Returns the number of directed edges in G. 
 int getNumArcs(Graph G);
 
-// getSource() 
-// Returns the source vertex in the most recent call to BFS(), or NIL if 
-// BFS() has not yet been called. 
-int getSource(Graph G);
-
-// getParent 
-// Returns the parent of vertex u in the most recently constructed BFS tree 
-// or returns NIL if BFS() has not yet been called. 
-// Pre: 1 <= u <= getOrder(G) 
+// getParent() 
+// Returns the parent of vertex u, or NIL if DFS() not yet called.
 int getParent(Graph G, int u);
 
-// getDist() 
-// Returns the distance from the source vertex to u if BFS() has been called, 
-// otherwise returns INF. 
-// Pre: 1 <= u <= getOrder(G) 
-int getDist(Graph G, int u);
-
-// getPath() 
-// If vertex u is reachable from the source, appends the vertices of a shortest 
-// source-u path to List L. Otherwise, appends NIL to L. 
-// Pre: 1 <= u <= getOrder(G), getSource(G) != NIL 
-void getPath(List L, Graph G, int u);
+// getDiscover() 
+// Returns the discover time of u, or UNDEF if DFS() not yet called. 
+int getDiscover(Graph G, int u); 
 
 // getFinish() 
 // Returns the finish time of u, or UNDEF if DFS() not yet called. 
@@ -83,11 +68,23 @@ void addEdge(Graph G, int u, int v);
 // Pre: 1 <= u <= getOrder(G), 1 <= v <= getOrder(G) 
 void addArc(Graph G, int u, int v);
 
-// BFS() 
-// Runs the Breadth First Search algorithm on G with source vertex s. 
-void BFS(Graph G, int s);
+// DFS() 
+// Runs the Depth First Search algorithm on G.  Input List S contains the vertex 
+// labels 1, .., n, where n=getOrder(G), and determines the order in which vertices  
+// are processed in the main loop of DFS(). When complete, output List S contains  
+// the same vertices sorted by decreasing finish times.  
+// Pre: getOrder(G)==getLength(S) 
+void DFS(Graph G, List S); 
 
 // other functions -------------------------------------------------
+
+// copyGraph() 
+// Returns a copy of G. 
+Graph copyGraph(Graph G); 
+
+// transpose() 
+// Returns the transpose of Graph G. 
+Graph transpose(Graph G); 
 
 // printGraph() 
 // Prints the adjacency list representation of G to FILE* out. 
