@@ -12,6 +12,7 @@ pa3
 // constants
 #define NIL -1
 #define INF -1000000
+#define UNDEF -10
 
 typedef struct GraphObj* Graph;
 
@@ -61,6 +62,10 @@ int getDist(Graph G, int u);
 // source-u path to List L. Otherwise, appends NIL to L. 
 // Pre: 1 <= u <= getOrder(G), getSource(G) != NIL 
 void getPath(List L, Graph G, int u);
+
+// getFinish() 
+// Returns the finish time of u, or UNDEF if DFS() not yet called. 
+int getFinish(Graph G, int u);
 
 // manipulation procedures -------------------------------------------------
 

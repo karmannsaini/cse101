@@ -91,6 +91,7 @@ int getSource(Graph G) {
     return(G->source);
 }
 
+//a parent of a vertex may be NIL
 int getParent(Graph G, int u) {
     if (1 > u || u > getOrder(G)) {
         printf("Graph Error: calling getParent() with a vertex index out of range.\n");
@@ -137,6 +138,10 @@ void getPath(List L, Graph G, int u) {
         getPath(L, G, getParent(G, u)); // recursive call
         append(L, u);
     }
+}
+
+int getFinish(Graph G, int u) {
+    //if dfs not called, return UNDEF, otherwiser return finish time of U
 }
 
 // manipulation proccedures -------------------------------------------------
