@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// GraphClient.c
+// GraphTest.c
 // Determines the connected components of an (undirected) graph using DFS.
 //-----------------------------------------------------------------------------
 #include <stdio.h>

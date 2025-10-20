@@ -11,7 +11,7 @@
 MAIN           = FindComponents
 MAINOBJ        = $(MAIN).o
 MAINSRC        = $(MAIN).c
-TEST           = GraphClient
+TEST           = GraphTest
 TESTOBJ        = $(TEST).o
 TESTSRC        = $(TEST).c
 ADT1           = Graph
@@ -52,7 +52,7 @@ clean :
 	$(REMOVE) $(MAIN) $(MAINOBJ) $(TEST) $(TESTOBJ) $(ADT1OBJ) $(ADT2OBJ)
 
 check$(MAIN) : $(MAIN)
-	$(MEMCHECK) $(MAIN) $(INFILE) $(OUTFILE)
+	$(MEMCHECK) ./$(MAIN) $(INFILE) $(OUTFILE)  # Added ./ here
 
 check$(TEST) : $(TEST)
 	$(MEMCHECK) $(TEST)
