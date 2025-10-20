@@ -92,6 +92,12 @@ void freeGraph(Graph* pG) {
     free((*pG)->distance);
     (*pG)->distance = NULL;
 
+    free((*pG)->discoveryTime);
+    (*pG)->discoveryTime = NULL;
+
+    free((*pG)->finishTime);
+    (*pG)->finishTime = NULL;
+
     free(*pG);
     *pG = NULL; 
 }
@@ -236,10 +242,12 @@ void DFS(Graph G, List S) {
         exit(EXIT_FAILURE);
     }
 
-
+    
     for (int i = 1; i < getOrder(G) + 1; i++) {
         G->color[i] = 'W';
         G->parent[i] = NIL;
+        G->discoveryTime[i] = UNDEF;
+        G->finishTime[i] = UNDEF;
     }
 
     // local var time
@@ -250,8 +258,10 @@ void DFS(Graph G, List S) {
     // main loof of DFS
     moveFront(order_list);
     while(position(order_list) != -1) {
-        if (G->color[get(order_list)] == 'W') {
-            time = Visit(G, get(order_list), time, S);
+        int u = get(order_list); // vertex ID extracted once
+        
+        if (G->color[u] == 'W') { 
+            time = Visit(G, u, time, S);
         }
         moveNext(order_list);
     }
@@ -264,17 +274,20 @@ int Visit(Graph G, int x, int time, List S) {
     G->color[x] = 'G';
 
     List adj = G->adjacent[x];
-    moveFront(adj);
-    while (position(adj) != -1) {
-        int y = get(adj);
-        if (G->color[y] == 'W') {
-            G->parent[y] = x;
-            time = Visit(G, y, time, S);
+    if (length(adj) > 0) {
+        moveFront(adj);
+        while (position(adj) != -1) {
+            int y = get(adj);
+            if (G->color[y] == 'W') {
+                G->parent[y] = x;
+                time = Visit(G, y, time, S);
+            }
+            moveNext(adj);
         }
     }
     G->color[x] = 'B';
     G->finishTime[x] = ++time;
-    append(S, x);
+    prepend(S, x);
     return time;
 }
 
@@ -312,12 +325,14 @@ Graph transpose(Graph G) {
     for (int u = 1; u < getOrder(G) + 1; u++) {
         List adjacentListG = G->adjacent[u];
 
-        moveFront(adjacentListG);
+        if (length(adjacentListG) > 0) { 
+            moveFront(adjacentListG);
         
-        while(position(adjacentListG) != -1) {
-            int v = get(adjacentListG);
-            addArc(T, v, u);
-            moveNext(adjacentListG);
+            while(position(adjacentListG) != -1) {
+                int v = get(adjacentListG);
+                addArc(T, v, u);
+                moveNext(adjacentListG);
+            }
         }
     }
 

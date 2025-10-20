@@ -1,88 +1,129 @@
-//-----------------------------------------------------------------------------
-// GraphTest.c
-// Determines the connected components of an (undirected) graph using DFS.
-//-----------------------------------------------------------------------------
+/***
+* Karmann Saini
+* kasisain 
+* 2025 Fall CSE101 pa3 
+* GraphTest.h
+* Graph test comprehensive
+***/ 
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "List.h"
 #include "Graph.h"
 
+int test_count = 0;
+int passed_count = 0;
 
-int main(int argc, char* argv[]){
+void run_test(bool condition, const char* message) {
+    test_count++;
+    if (condition) {
+        passed_count++;
+        printf("  pass %d: %s\n", test_count, message);
+    } else {
+        printf("  fail %d: %s\n", test_count, message);
+    }
+}
 
-   int i, u, v, n, offset;
+// helper to check if a list matches an expected sequence
+bool check_list_sequence(List L, int* expected, int len) {
+    if (length(L) != len) return false;
+    moveFront(L);
+    for (int i = 0; i < len; i++) {
+        if (position(L) == -1 || get(L) != expected[i]) return false;
+        moveNext(L);
+    }
+    return true;
+}
 
-   // encoded graph 
-   char graphData[] = "12 1 2 1 8 2 8 2 9 8 9 3 4 3 10 4 10 5 6 5 7 6 7 5 11 7 12 0 0";
-   char* data = graphData;
+// test 1: graph creation + accessors
+void test_initial_state_and_accessors() {
+    printf("\n-- test 1: basic construction and accessors --\n");
+    Graph G = newGraph(10);
+    
+    run_test(getOrder(G) == 10, "order = 10");
+    run_test(getNumArcs(G) == 0 && getNumEdges(G) == 0, "no arcs or edges yet");
 
-   // Build Graph G
-   sscanf(data, " %d%n", &n, &offset); 
-   Graph G = newGraph(n);
-   data += offset;
-   while( sscanf(data, " %d %d%n", &u, &v, &offset)==2 ){
-      if( u*v==0 ) break;
-      addEdge(G, u, v);
-      data += offset;
-   }
-   fprintf(stdout, "\n");
-   printGraph(stdout, G);
+    run_test(getParent(G, 5) == NIL, "parent is NIL before dfs");
+    run_test(getDiscover(G, 5) == UNDEF, "discover time undef");
+    run_test(getFinish(G, 5) == UNDEF, "finish time undef");
 
-   // Build List S
-   List S = newList();
-   for( i=1; i<=n; i++ ){
-      append(S, i);
-   }
+    addArc(G, 1, 3);
+    addArc(G, 1, 5);
+    addArc(G, 2, 1);
+    run_test(getNumArcs(G) == 3, "arc count = 3");
 
-   DFS(G, S);
 
-   // trace DFS 
-   /*
-   fprintf(stdout, "x:  d  f  p\n");
-   for(i=1; i<=n; i++){
-      fprintf(stdout, "%d: %2d %2d %2d\n", i, getDiscover(G, i), getFinish(G, i), getParent(G, i));
-   }
-   fprintf(stdout, "\n");
-   printList(stdout, S);
-   fprintf(stdout, "\n");
-   */
+    run_test(getNumArcs(G) == 3, "arc count = 3");
 
-   // Count connected components
-   int numComp = 0;
-   for( moveFront(S); position(S)>=0; moveNext(S) ){
-      if( getParent(G, get(S))==NIL ){
-         numComp++;
-      }
-   }
-   fprintf(stdout, "\n");
-   fprintf(stdout, "# connected components = %d\n", numComp);
-   printList(stdout, S);
-   fprintf(stdout, "\n");
 
-   // Print connected components
-   List* Comp = calloc(numComp, sizeof(List));
-   List T;
-   for( i=0; i<numComp; i++ ){
-      moveBack(S);
-      while( getParent(G, get(S))!=NIL ){
-         movePrev(S);
-      }
-      T = split(S);
-      Comp[i] = S;
-      S = T;
-   }
-   for( i=0; i<numComp; i++ ){
-      fprintf(stdout, "%d: ", i+1);
-      printList(stdout, Comp[i]);
-      fprintf(stdout, "\n");
-   }
-   fprintf(stdout, "\n");
+    makeNull(G);
+    run_test(getNumArcs(G) == 0, "makenull resets arc count");
+    
+    freeGraph(&G);
+}
 
-   // free stuff
-   for( i=0; i<numComp; i++ ) freeList(&Comp[i]);
-   free(Comp);
-   freeList(&S);
-   freeGraph(&G);
+// test 2: dfs and time checking
+void test_dfs_execution() {
+    printf("\n-- test 2: dfs timing + order --\n");
 
-   return(EXIT_SUCCESS);
+    Graph G = newGraph(5);
+    addArc(G, 1, 2);
+    addArc(G, 2, 3);
+    addArc(G, 3, 4);
+    addArc(G, 4, 5);
+    addArc(G, 5, 2); // makes a cycle
+
+    List S = newList();
+    for (int i = 1; i <= 5; i++) append(S, i);
+    
+    DFS(G, S);
+
+    run_test(getParent(G, 3) == 2, "parent(3) = 2");
+    run_test(getParent(G, 1) == NIL, "1 has NIL parent");
+
+    run_test(getDiscover(G, 1) == 1, "discover(1) = 1");
+    run_test(getFinish(G, 1) == 10, "finish(1) = 10");
+    run_test(getDiscover(G, 5) == 5 && getFinish(G, 5) == 6, "discover/finish(5) ok");
+
+    int expected_S[] = {1, 5, 4, 3, 2};
+    run_test(check_list_sequence(S, expected_S, 5), "S in decreasing finish time");
+
+    freeList(&S);
+    freeGraph(&G);
+}
+
+// test 3: transpose + copygraph
+void test_transpose_and_copy() {
+    printf("\n-- test 3: transpose + copy --\n");
+
+    Graph G = newGraph(3);
+    addArc(G, 1, 2);
+    addArc(G, 2, 3);
+    addArc(G, 3, 1);
+    
+    Graph C = copyGraph(G);
+    addArc(C, 1, 3); // modify copy
+    run_test(getNumArcs(G) == 3 && getNumArcs(C) == 4, "copy is deep");
+
+    Graph T = transpose(G);
+    run_test(getNumArcs(T) == getNumArcs(G), "transpose arc count matches");
+
+    freeGraph(&G);
+    freeGraph(&T);
+    freeGraph(&C);
+}
+
+int main(void) {
+    test_initial_state_and_accessors();
+    test_dfs_execution();
+    test_transpose_and_copy();
+
+    printf("\n========================================\n");
+    printf("summary: %d tests run, %d passed, %d failed\n", 
+           test_count, passed_count, test_count - passed_count);
+    printf("========================================\n");
+    
+    return 0;
 }

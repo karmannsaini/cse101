@@ -109,22 +109,18 @@ int main(int argc, char* argv[]) {
     List S_temp;
 
     // Loop to extract each component list
-    for (int i = 1; i <= sccCount; i++) {
+    for (int i = 1; i <= sccCount && length(S) > 0; i++) {
         // Move to the end of the remaining list S
         moveBack(S);
 
         // where parent is NIL is where we need to be
-        while (getParent(T, get(S)) != NIL) {
+        while (position(S) != -1 && getParent(T, get(S)) != NIL) {
             movePrev(S);
         }
 
         // S = the component, S_temp = the remainder.
-        S_temp = split(S); 
-
-        
-        Comp[i-1] = S;
-
-        
+        S_temp = split(S);         
+        Comp[i-1] = S;        
         S = S_temp; 
     }
 
