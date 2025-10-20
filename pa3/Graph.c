@@ -1,13 +1,18 @@
-/*
-Karmann Saini
-CruzID:2034335
-pa3
-*/
+/***
+* Karmann Saini
+* kasisain 
+* 2025 Fall CSE101 pa3 
+* Graph.c
+* Graph implementation 
+***/ 
 
 #include "Graph.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+// Private Helper Function Prototype:
+int Visit(Graph G, int u, int time, List S);
 
 // private GraphObj type
 typedef struct GraphObj{
@@ -156,7 +161,6 @@ void makeNull(Graph G){
     }
     G->undirectedEdges = 0;
     G->directedEdges = 0;
-    G->source = NIL;
 }
 
 void addEdge(Graph G, int u, int v) {
@@ -259,10 +263,13 @@ int Visit(Graph G, int x, int time, List S) {
     G->discoveryTime[x] = ++time;
     G->color[x] = 'G';
 
-    for (int y = 1; y < length(G->adjacent[x]); y++) {
+    List adj = G->adjacent[x];
+    moveFront(adj);
+    while (position(adj) != -1) {
+        int y = get(adj);
         if (G->color[y] == 'W') {
             G->parent[y] = x;
-            time = Visit(G, y, time);
+            time = Visit(G, y, time, S);
         }
     }
     G->color[x] = 'B';
@@ -303,10 +310,11 @@ Graph transpose(Graph G) {
     Graph T = newGraph(getOrder(G));
 
     for (int u = 1; u < getOrder(G) + 1; u++) {
-        moveFront(G->adjacent[u];
-        
         List adjacentListG = G->adjacent[u];
-        while(position(u) != -1) {
+
+        moveFront(adjacentListG);
+        
+        while(position(adjacentListG) != -1) {
             int v = get(adjacentListG);
             addArc(T, v, u);
             moveNext(adjacentListG);

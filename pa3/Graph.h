@@ -1,8 +1,10 @@
-/*
-Karmann Saini
-CruzID:2034335
-pa3
-*/
+/***
+* Karmann Saini
+* kasisain 
+* 2025 Fall CSE101 pa3 
+* Graph.h
+* Graph interface
+***/ 
 
 #include "List.h"
 #include <stdio.h>
