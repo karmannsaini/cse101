@@ -2,7 +2,7 @@
 * Karmann Saini
 * kasisain 
 * 2025 Fall CSE101 pa3 
-* GraphTest.h
+* GraphTest.c
 * Graph test comprehensive
 ***/ 
 
@@ -87,7 +87,7 @@ void test_dfs_execution() {
     run_test(getFinish(G, 1) == 10, "finish(1) = 10");
     run_test(getDiscover(G, 5) == 5 && getFinish(G, 5) == 6, "discover/finish(5) ok");
 
-    int expected_S[] = {1, 5, 4, 3, 2};
+    int expected_S[] = {1, 2, 3, 4, 5};
     run_test(check_list_sequence(S, expected_S, 5), "S in decreasing finish time");
 
     freeList(&S);
